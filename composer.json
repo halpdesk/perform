@@ -1,0 +1,32 @@
+{
+    "name": "halpdesk/perform",
+    "description": "",
+    "keywords": ["perform", "orm", "repository", "datasource"],
+    "type": "library",
+    "authors": [
+        {
+            "name": "Daniel Leppänen",
+            "email": "daniel.leppanen@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.2",
+        "ext-json": "*",
+        "illuminate/support": "^6.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.0",
+        "halpdesk/helpers": "^0.9",
+        "illuminate/validation": "^6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Halpdesk\\Perform\\": "src/",
+            "Halpdesk\\Tests\\": "tests/"
+        },
+        "classmap": [],
+        "files": ["src/helpers.php"]
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
