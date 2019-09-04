@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "name": "Adam",
+        "companyId": 1,
+        "hiredAt": "2019-06-01",
+        "hired": true,
+        "salary": 99.5
+    },
+    {
+        "id": 2,
+        "name": "Billy",
+        "companyId": 2,
+        "hiredAt": "2019-06-02",
+        "hired": true,
+        "salary": 98.5
+    },
+    {
+        "id": 3,
+        "name": "Charlie",
+        "companyId": 1,
+        "hiredAt": "2019-06-03",
+        "hired": true,
+        "salary": 97.5
+    }
+]
