@@ -1,10 +1,12 @@
 [
     {
         "id": 1,
-        "name": "Company A"
+        "name": "Company A",
+        "address": "Somestreet A"
     },
     {
         "id": 2,
-        "name": "Company B"
+        "name": "Company B",
+        "address": "Somestreet B"
     }
 ]

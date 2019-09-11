@@ -4,18 +4,18 @@ namespace Halpdesk\Tests\Queries;
 
 use Halpdesk\Perform\Abstracts\Query;
 use Halpdesk\Perform\Contracts\Query as QueryContract;
-use Halpdesk\Perform\Contracts\Model;
+use Halpdesk\Perform\Contracts\Model as ModelContract;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Validator;
-use Halpdesk\Tests\Models\TicketModel;
+use Halpdesk\Tests\Models\Employee;
 use Carbon\Carbon;
 
-class EmployeeQuery extends QueryAbstract implements Query
+class EmployeeQuery extends Query implements QueryContract
 {
     protected $collection;
     protected $model = Employee::class;
 
-    public function create(array $parameters) : Model
+    public function create(array $parameters) : ModelContract
     {
         Validator::make($parameters, [
             'companyId'     => 'required|integer',
@@ -33,31 +33,30 @@ class EmployeeQuery extends QueryAbstract implements Query
         if (empty($this->collection)) {
             $body = file_get_contents('./tests/data/employees.json');
             $rows = json_decode($body, true);
-            $tickets = [];
+            $employees = [];
             foreach ($rows as $row) {
-                $tickets[] = new $this->model($row);
+                $employees[] = new $this->model($row);
             }
-            $this->collection = collect($tickets);
+            $this->collection = collect($employees);
         }
         return $this->collection;
     }
 
-    public function where($key, $value) : Query
+    public function where($key, $value) : QueryContract
     {
-        $collection = $this->get();
+        $collection = empty($this->collection) ? $this->get() : $this->collection;
         $this->collection = $collection->where($key, $value);
         return $this;
     }
 
-    public function find($id) : ?Model
+    public function find($id) : ?ModelContract
     {
         $collection = empty($this->collection) ? $this->get() : $this->collection;
-        $data = $collection->where('id', $id)->first();
-        $model = (is_array($data)) ? (new $this->model)->fill($data) : null;
+        $model = $collection->where('id', $id)->first();
         return $model;
     }
 
-    public function first() : ?Model
+    public function first() : ?ModelContract
     {
         $collection = empty($this->collection) ? $this->get() : $this->collection;
         $data = $collection->first();

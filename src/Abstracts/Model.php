@@ -252,21 +252,22 @@ abstract class Model {
 
         // If we have a mutator
         if (method_exists($this, $mutatorMethod)) {
-            $value = call_user_func([$this, $mutatorMethod], $value);
+            call_user_func([$this, $mutatorMethod], $value);
+        } else {
+            if (in_array($key, $this->fields) || method_exists($this, $key)) {
+
+                // Convert it by casts
+                $this->vars[$key] = $this->convert($key, $value);
+
+            // Same but camel_case. Observe! Do not mindlessly put this as extra operands in the first if-statement
+            // Remember the day when 6 programmers took 15 minutes (1.5hrs) to discuss the term "operand"
+            } else if (in_array(camel_case($key), $this->fields) || method_exists($this, camel_case($key))) {
+
+                // Convert it by casts
+                $this->vars[camel_case($key)] = $this->convert(camel_case($key), $value);
+            }
         }
 
-        if (in_array($key, $this->fields) || method_exists($this, $key)) {
-
-            // Convert it by casts
-            $this->vars[$key] = $this->convert($key, $value);
-
-        // Same but camel_case. Observe! Do not mindlessly put this as extra operands in the first if-statement
-        // Remember the day when 6 programmers took 15 minutes (1.5hrs) to discuss the term "operand"
-        } else if (in_array(camel_case($key), $this->fields) || method_exists($this, camel_case($key))) {
-
-            // Convert it by casts
-            $this->vars[camel_case($key)] = $this->convert(camel_case($key), $value);
-        }
     }
 
     /**

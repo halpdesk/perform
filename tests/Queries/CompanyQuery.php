@@ -4,7 +4,7 @@ namespace Halpdesk\Tests\Queries;
 
 use Halpdesk\Perform\Abstracts\Query;
 use Halpdesk\Perform\Contracts\Query as QueryContract;
-use Halpdesk\Perform\Contracts\Model;
+use Halpdesk\Perform\Contracts\Model as ModelContract;
 use Illuminate\Support\Collection;
 use Halpdesk\Tests\Models\Company;
 
@@ -22,14 +22,14 @@ class CompanyQuery extends Query implements QueryContract
         return $this->collection;
     }
 
-    public function where($key, $value) : Query
+    public function where($key, $value) : QueryContract
     {
         $collection = $this->get();
         $this->collection = $collection->where($key, $value);
         return $this;
     }
 
-    public function find($id) : ?Model
+    public function find($id) : ?ModelContract
     {
         $collection = empty($this->collection) ? $this->get() : $this->collection;
         $data = $collection->where('id', $id)->first();
@@ -41,7 +41,7 @@ class CompanyQuery extends Query implements QueryContract
         return $model;
     }
 
-    public function first() : ?Model
+    public function first() : ?ModelContract
     {
         $collection = empty($this->collection) ? $this->get() : $this->collection;
         $data = $collection->first();

@@ -65,7 +65,7 @@ abstract class Query
     {
         $model = $this->find($id);
         if (!($model instanceof $this->model)) {
-            throw new ModelNotFoundException('not_found', $this->model, $id);
+            throw new ModelNotFoundException('not_found: '.$this->model.' ('.$id.')', $this->model, $id);
         }
         return $model;
     }

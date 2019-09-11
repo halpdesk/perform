@@ -120,4 +120,52 @@ class ModelsTest extends TestCase
         $dates = $employee->getDates();
         $this->assertEquals(Carbon::parse($employeeData['hiredAt'])->format($employee->dateFormat), $employee->hiredAt);
     }
+
+    /**
+     * @covers \Halpdesk\Perform\Abstracts\Model::__get()
+     * @covers \Halpdesk\Perform\Abstracts\Model::getAttribute()
+     * @covers \Halpdesk\Perform\Abstracts\Model::convert()
+     */
+    public function testCustomAccessorMethod()
+    {
+        $companyData = json_file_to_array(__DIR__."/data/companies.json")[0];
+        $company = new Company($companyData);
+        $this->assertEquals(strtoupper($companyData["name"]), $company->name);
+    }
+
+    /**
+     * @covers \Halpdesk\Perform\Abstracts\Model::__set()
+     * @covers \Halpdesk\Perform\Abstracts\Model::setAttribute()
+     * @covers \Halpdesk\Perform\Abstracts\Model::setVar()
+     */
+    public function testCustomMutatorMethod()
+    {
+        $emploeeData = json_file_to_array(__DIR__."/data/employees.json")[0];
+        $employee = new Employee($emploeeData);
+        $employee->salary = 99.5;
+        $this->assertEquals(floor(99.5), $employee->salary);
+    }
+
+    /**
+     * @covers \Halpdesk\Perform\Abstracts\Model::__construct()
+     * @covers \Halpdesk\Perform\Abstracts\Model::fill()
+     * @covers \Halpdesk\Perform\Abstracts\Query::get()
+     * @covers \Halpdesk\Perform\Abstracts\Query::find()
+     * @covers \Halpdesk\Perform\Abstracts\Query::findOrFail()
+     * @covers \Halpdesk\Perform\Abstracts\Query::where()
+     */
+    public function testLoadRelation()
+    {
+        $employee = Employee::findOrFail(1);
+
+        $employee->load(["company"]);
+        $this->assertTrue($employee->relationLoaded("company"));
+
+        $employeeCompany = $employee->company; // possible to call without function since it's loaded
+        $expectedCompany = Company::findOrFail(1);
+        $this->assertEquals($employeeCompany, $expectedCompany);
+
+        $notExpectedCompany = Company::findOrFail(2);
+        $this->assertNotEquals($employeeCompany, $notExpectedCompany);
+    }
 }

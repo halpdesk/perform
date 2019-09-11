@@ -28,4 +28,9 @@ class Company extends Model implements ModelContract
     {
         return 'it-does-not-return-a-model-or-collection';
     }
+
+    public function getNameAttribute($value)
+    {
+        return strtoupper($value);
+    }
 }

@@ -35,11 +35,16 @@ class Employee extends Model implements ModelContract
 
     public function company()
     {
-        return Company::find($this->productId);
+        return Company::find($this->companyId);
     }
 
     public function setHiredAtAttribute($value = 'now')
     {
         return Carbon::parse($value);
+    }
+
+    public function setSalaryAttribute($value)
+    {
+        $this->setVar("salary", floor($value));
     }
 }
