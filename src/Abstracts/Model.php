@@ -7,7 +7,7 @@ use Halpdesk\Perform\Exceptions\ModelNotFoundException;
 use Halpdesk\Perform\Exceptions\QueryException;
 use Halpdesk\Perform\Exceptions\NotImplementedException;
 use Halpdesk\Perform\Exceptions\InvalidTypeException;
-use Halpdesk\Perform\Exceptions\AttributeIsNotDefinedException;
+use Halpdesk\Perform\Exceptions\AttributeNotDefinedException;
 use Halpdesk\Perform\Exceptions\RelationException;
 use Halpdesk\Perform\Exceptions\QueryClassException;
 use Halpdesk\Perform\Contracts\Query as QueryContract;
@@ -227,7 +227,7 @@ abstract class Model {
     }
 
     /**
-     * Set a var without checking mutator, cast or format
+     * Set a field without checking mutator, cast or format
      * Supposed to be used specifically within mutator methods
      * or otherwise within the class itself, why it is protected
      *
@@ -235,7 +235,7 @@ abstract class Model {
      * @param Mixed  $value  Value to set attribute to
      * @return void
      */
-    protected function setVar(string $key, $value) : void
+    protected function setField(string $key, $value) : void
     {
         $this->vars[$key] = $value;
     }
@@ -253,19 +253,20 @@ abstract class Model {
         // If we have a mutator
         if (method_exists($this, $mutatorMethod)) {
             call_user_func([$this, $mutatorMethod], $value);
-        } else {
-            if (in_array($key, $this->fields) || method_exists($this, $key)) {
+            $value = $this->vars[$key]; // fetch the value to use down below
+        }
 
-                // Convert it by casts
-                $this->vars[$key] = $this->convert($key, $value);
+        if (in_array($key, $this->fields) || method_exists($this, $key)) {
+
+            // Convert it by casts
+            $this->vars[$key] = $this->convert($key, $value);
 
             // Same but camel_case. Observe! Do not mindlessly put this as extra operands in the first if-statement
             // Remember the day when 6 programmers took 15 minutes (1.5hrs) to discuss the term "operand"
-            } else if (in_array(camel_case($key), $this->fields) || method_exists($this, camel_case($key))) {
+        } else if (in_array(camel_case($key), $this->fields) || method_exists($this, camel_case($key))) {
 
-                // Convert it by casts
-                $this->vars[camel_case($key)] = $this->convert(camel_case($key), $value);
-            }
+            // Convert it by casts
+            $this->vars[camel_case($key)] = $this->convert(camel_case($key), $value);
         }
 
     }
@@ -273,7 +274,7 @@ abstract class Model {
     /**
      * Get a given attribute on the model, cast by the casts definition
      * @param string    $key   Key in the fields array for the attribute
-     * @throws AttributeIsNotDefinedException
+     * @throws AttributeNotDefinedException
      * @return Mixed
      */
     public function getAttribute(string $key)
@@ -297,7 +298,7 @@ abstract class Model {
 
             return $value;
         } else {
-            throw new AttributeIsNotDefinedException('attribute_not_found: '.$key);
+            throw new AttributeNotDefinedException('attribute_not_found: '.$key);
         }
     }
 

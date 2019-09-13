@@ -15,18 +15,17 @@ class Employee extends Model implements ModelContract
         'companyId',
         'name',
         'hiredAt',
-        'hiredAtString',
         'hired',
         'salary',
     ];
 
     protected $casts = [
-        'id'            => 'integer',
-        'companyId'     => 'integer',
-        'name'          => 'string',
-        'hiredAt'       => 'datetime',
-        'hired'         => 'boolean',
-        'salary'        => 'float',
+        'id'        => 'integer',
+        'companyId' => 'integer',
+        'name'      => 'string',
+        'hiredAt'   => 'datetime',
+        'hired'     => 'boolean',
+        'salary'    => 'float',
     ];
 
     protected $dates = [
@@ -40,11 +39,11 @@ class Employee extends Model implements ModelContract
 
     public function setHiredAtAttribute($value = 'now')
     {
-        return Carbon::parse($value);
+        $this->setField('hiredAt', Carbon::parse($value));
     }
 
     public function setSalaryAttribute($value)
     {
-        $this->setVar("salary", floor($value));
+        $this->setField('salary', floor($value));
     }
 }

@@ -168,4 +168,27 @@ class ModelsTest extends TestCase
         $notExpectedCompany = Company::findOrFail(2);
         $this->assertNotEquals($employeeCompany, $notExpectedCompany);
     }
+
+    /**
+     * @covers \Halpdesk\Perform\Abstracts\Model::__construct()
+     * @covers \Halpdesk\Perform\Abstracts\Model::fill()
+     * @covers \Halpdesk\Perform\Abstracts\Query::get()
+     * @covers \Halpdesk\Perform\Abstracts\Query::find()
+     * @covers \Halpdesk\Perform\Abstracts\Query::findOrFail()
+     * @covers \Halpdesk\Perform\Abstracts\Query::where()
+     */
+    public function testLoadOneToManyRelation()
+    {
+        $employee = Employee::findOrFail(1);
+
+        $employee->load(["company"]);
+        $this->assertTrue($employee->relationLoaded("company"));
+
+        $employeeCompany = $employee->company; // possible to call without function since it's loaded
+        $expectedCompany = Company::findOrFail(1);
+        $this->assertEquals($employeeCompany, $expectedCompany);
+
+        $notExpectedCompany = Company::findOrFail(2);
+        $this->assertNotEquals($employeeCompany, $notExpectedCompany);
+    }
 }

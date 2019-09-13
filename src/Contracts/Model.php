@@ -38,7 +38,6 @@ interface Model {
      */
     static public function firstOrFail() : Model;
 
-
     /**
      * Begin querying a model a basic where clause
      */
@@ -48,9 +47,6 @@ interface Model {
      * Begin querying a model with eager loading
      */
     static public function with(array $relations) : Query;
-
-
-
 
     /**
      * Eager load relations on the model
@@ -71,8 +67,6 @@ interface Model {
      * Create a model instance without creating a record in the repository
      */
     static public function make($parameters) : Model;
-
-
 
     /**
      * Set a given attribute on the model

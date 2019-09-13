@@ -21,7 +21,7 @@ class Company extends Model implements ModelContract
 
     public function employees()
     {
-        return Employee::where('productId', $this->id)->get();
+        return Employee::where('companyId', $this->id)->get();
     }
 
     public function doesNotWorkRelation()
