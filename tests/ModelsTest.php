@@ -4,10 +4,13 @@ namespace Halpdesk\Tests;
 
 use Halpdesk\Perform\Contracts\Model as ModelContract;
 use Halpdesk\Perform\Abstracts\Model as Model;
+use Halpdesk\Perform\Contracts\Query as QueryContract;
+use Halpdesk\Perform\Abstracts\Query as Query;
 use Halpdesk\Tests\Transformers\ProductsTransformer;
 use Halpdesk\Tests\Transformers\TicketsTransformer;
 use Halpdesk\Tests\Models\Employee;
 use Halpdesk\Tests\Models\Company;
+use Halpdesk\Tests\Queries\OtherCompanyQuery;
 use PHPUnit\Framework\TestCase;
 use Carbon\Carbon;
 use Halpdesk\Perform\Exceptions\ModelNotFoundException;
@@ -140,8 +143,8 @@ class ModelsTest extends TestCase
      */
     public function testCustomMutatorMethod()
     {
-        $emploeeData = json_file_to_array(__DIR__."/data/employees.json")[0];
-        $employee = new Employee($emploeeData);
+        $employeeData = json_file_to_array(__DIR__."/data/employees.json")[0];
+        $employee = new Employee($employeeData);
         $employee->salary = 99.5;
         $this->assertEquals(floor(99.5), $employee->salary);
     }
@@ -229,5 +232,49 @@ class ModelsTest extends TestCase
             $exceptionThrown = true;
         }
         $this->assertTrue($exceptionThrown);
+    }
+
+    /**
+     * @covers \Halpdesk\Perform\Abstracts\Model::__construct()
+     * @covers \Halpdesk\Perform\Abstracts\Model::setQueryClass()
+     * @covers \Halpdesk\Perform\Abstracts\Query::get()
+     */
+    public function testConstructModelWithOtherQueryClass()
+    {
+        $companyQuery = Company::setQueryClass(OtherCompanyQuery::class)->where("id", 1);
+        $this->assertTrue($companyQuery instanceof OtherCompanyQuery);
+        $this->assertTrue(in_array(QueryContract::class, class_implements($companyQuery)));
+        $this->assertTrue(in_array(Query::class, class_parents($companyQuery)));
+        $companyData = json_file_to_array(__DIR__."/data/other-companies.json")[0];
+        $this->assertEquals(new Company($companyData), $companyQuery->get()->first());
+    }
+
+    /**
+     * @covers \Halpdesk\Perform\Abstracts\Model::all()
+     * @covers \Halpdesk\Perform\Abstracts\Query::get()
+     */
+    public function testAll()
+    {
+            // Assert that each object can convert to array and display the same data as the data source
+        $employees = Employee::all();
+        $employeeData = json_file_to_array(__DIR__."/data/employees.json");
+
+        foreach($employees as $i => $employee) {
+            $this->assertEquals(new Employee($employeeData[$i]), $employee);
+        }
+    }
+
+    /**
+     * @covers \Halpdesk\Perform\Abstracts\Model::all()
+     * @covers \Halpdesk\Perform\Abstracts\Query::get()
+     */
+    public function testWhere()
+    {
+        $employee = Employee::where("id", 2)->first();
+        $employeeData = json_file_to_array(__DIR__."/data/employees.json");
+
+        $key = array_search(2, array_column($employeeData, 'id'));
+
+        $this->assertEquals(new Employee($employeeData[$key]), $employee);
     }
 }
