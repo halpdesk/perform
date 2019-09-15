@@ -179,16 +179,55 @@ class ModelsTest extends TestCase
      */
     public function testLoadOneToManyRelation()
     {
-        $employee = Employee::findOrFail(1);
+        $company = Company::findOrFail(1);
 
-        $employee->load(["company"]);
-        $this->assertTrue($employee->relationLoaded("company"));
+        $company->load(["employees"]);
+        $this->assertTrue($company->relationLoaded("employees"));
 
-        $employeeCompany = $employee->company; // possible to call without function since it's loaded
-        $expectedCompany = Company::findOrFail(1);
-        $this->assertEquals($employeeCompany, $expectedCompany);
+        $companyEmployees = $company->employees; // possible to call without function since it's loaded
+        $expectedEmployees = Employee::where("companyId", $company->id)->get();
+        $this->assertEquals($companyEmployees, $expectedEmployees);
+    }
 
-        $notExpectedCompany = Company::findOrFail(2);
-        $this->assertNotEquals($employeeCompany, $notExpectedCompany);
+    /**
+     * @covers \Halpdesk\Perform\Abstracts\Model::__construct()
+     * @covers \Halpdesk\Perform\Abstracts\Model::first()
+     * @covers \Halpdesk\Perform\Abstracts\Model::fill()
+     */
+    public function testLoadRelationThatIsNeitherModelOrCollection()
+    {
+        $company = Company::findOrFail(1);
+        $exceptionThrown = false;
+        try {
+            $company->load(['doesNotWorkRelation']);
+        } catch (RelationException $e) {
+            $this->assertEquals($e->getMessage(), 'relation_method_does_not_return_model_or_collection: doesNotWorkRelation');
+            $exceptionThrown = true;
+        }
+        $this->assertTrue($exceptionThrown);
+    }
+
+    /**
+     * @covers \Halpdesk\Perform\Abstracts\Model::all()
+     * @covers \Halpdesk\Perform\Abstracts\Model::findOrFail()
+     * @covers \Halpdesk\Perform\Abstracts\Query::get()
+     * @covers \Halpdesk\Perform\Abstracts\Query::findOrFail()
+     * @covers \Halpdesk\Perform\Abstracts\Query::find()
+     */
+    public function testFindOrFailThrowsExceptionIfModelNotFound()
+    {
+        $employees = Employee::all();
+        $unexistingId = $employees->count() + 10;
+
+        $exceptionThrown = false;
+        try {
+
+            Employee::findOrFail($unexistingId);
+        } catch (ModelNotFoundException $e) {
+            $this->assertEquals($e->getIds(), $unexistingId);
+            $this->assertEquals($e->getModel(), Employee::class);
+            $exceptionThrown = true;
+        }
+        $this->assertTrue($exceptionThrown);
     }
 }
