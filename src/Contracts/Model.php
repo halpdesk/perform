@@ -9,7 +9,7 @@ interface Model {
     /**
      * Set the query class
      */
-    static public function setQueryContract(string $class) : Model;
+    static public function setQueryClass(string $class) : Model;
 
     /**
      * Get all of the models from the repository

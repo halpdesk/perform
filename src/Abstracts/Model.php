@@ -71,7 +71,7 @@ abstract class Model {
      * @param string $class The class to set as Query Class
      * @return ModelContract
     */
-    static public function setQueryContract(string $class) : ModelContract
+    static public function setQueryClass(string $class) : ModelContract
     {
         if (class_exists($class) && in_array(QueryContract::class, class_implements($class))) {
 
