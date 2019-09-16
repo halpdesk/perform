@@ -1,7 +1,7 @@
 {
     "name": "halpdesk/perform",
     "description": "",
-    "keywords": ["perform", "orm", "repository", "datasource"],
+    "keywords": ["perform", "orm", "repository"],
     "type": "library",
     "authors": [
         {
