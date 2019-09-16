@@ -10,20 +10,11 @@ use Halpdesk\Tests\Models\Company;
 
 class OtherCompanyQuery extends CompanyQuery implements QueryContract
 {
-    protected $collection;
     protected $model = Company::class;
 
-    public function get() : Collection
+    public function load() : void
     {
-        if (empty($this->collection)) {
-            $body = file_get_contents('./tests/data/other-companies.json');
-            $rows = json_decode($body, true);
-            $companies = [];
-            foreach ($rows as $row) {
-                $companies[] = new $this->model($row);
-            }
-            $this->collection = collect($companies);
-        }
-        return $this->collection;
+        $otherCompanies = json_file_to_array('./tests/data/other-companies.json');
+        $this->setData(collect($otherCompanies));
     }
 }

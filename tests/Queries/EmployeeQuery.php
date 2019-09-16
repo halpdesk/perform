@@ -28,45 +28,51 @@ class EmployeeQuery extends Query implements QueryContract
         return $model;
     }
 
-    public function get() : Collection
+    public function load() : void
     {
-        if (empty($this->collection)) {
-            $body = file_get_contents('./tests/data/employees.json');
-            $rows = json_decode($body, true);
-            $employees = [];
-            foreach ($rows as $row) {
-                $employees[] = new $this->model($row);
-            }
-            $this->collection = collect($employees);
-        }
-        return $this->collection;
+        $employees = json_file_to_array('./tests/data/employees.json');
+        $this->setData(collect($employees));
     }
 
-    public function where($key, $value) : QueryContract
-    {
-        $collection = empty($this->collection) ? $this->get() : $this->collection;
-        $this->collection = $collection->where($key, $value);
-        return $this;
-    }
+    // public function get() : Collection
+    // {
+    //     if (empty($this->collection)) {
+    //         $body = file_get_contents('./tests/data/employees.json');
+    //         $rows = json_decode($body, true);
+    //         $employees = [];
+    //         foreach ($rows as $row) {
+    //             $employees[] = new $this->model($row);
+    //         }
+    //         $this->collection = collect($employees);
+    //     }
+    //     return $this->collection;
+    // }
 
-    public function find($id) : ?ModelContract
-    {
-        $collection = empty($this->collection) ? $this->get() : $this->collection;
-        $model = $collection->where('id', $id)->first();
-        return $model;
-    }
+    // public function where($key, $value) : QueryContract
+    // {
+    //     $collection = empty($this->collection) ? $this->get() : $this->collection;
+    //     $this->collection = $collection->where($key, $value);
+    //     return $this;
+    // }
 
-    public function first() : ?ModelContract
-    {
-        $collection = empty($this->collection) ? $this->get() : $this->collection;
-        $data = $collection->first();
-        if ($data instanceof $this->model) {
-            return $data;
-        } else if (is_array($data)) {
-            $model = (new $this->model)->fill($data);
-        } else {
-            $model = null;
-        }
-        return $model;
-    }
+    // public function find($id) : ?ModelContract
+    // {
+    //     $collection = empty($this->collection) ? $this->get() : $this->collection;
+    //     $model = $collection->where('id', $id)->first();
+    //     return $model;
+    // }
+
+    // public function first() : ?ModelContract
+    // {
+    //     $collection = empty($this->collection) ? $this->get() : $this->collection;
+    //     $data = $collection->first();
+    //     if ($data instanceof $this->model) {
+    //         return $data;
+    //     } else if (is_array($data)) {
+    //         $model = (new $this->model)->fill($data);
+    //     } else {
+    //         $model = null;
+    //     }
+    //     return $model;
+    // }
 }
