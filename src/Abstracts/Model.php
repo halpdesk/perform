@@ -36,7 +36,7 @@ abstract class Model {
             $parameters = (array)$parameters;
         }
         if (!empty($class)) {
-            static::setQueryContract($class);
+            static::setQueryClass($class);
         }
         $this->model = get_class($this);
         $this->fill($parameters);
@@ -180,13 +180,12 @@ abstract class Model {
     {
         foreach ($relations as $relation) {
             if (empty($this->relations[$relation]) && method_exists($this, $relation)) {
-                $model = $this->$relation();
+                $model = call_user_func([$this, $relation]);
 
-                // Only include it if the return is a Model
+                // Only include it if the return is a Model or Collection
                 if ($model instanceof ModelContract || $model instanceof Collection) {
                     $this->relations[$relation] = $model;
                     $this->$relation = $model;
-                    // $this->vars[$relation] = $model;
                 } else {
                     throw new RelationException('relation_method_does_not_return_model_or_collection: '.$relation);
                 }
