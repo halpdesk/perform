@@ -11,8 +11,63 @@ use Halpdesk\Perform\Contracts\Model as ModelContract;
 
 abstract class Query
 {
-    protected $collection;
+    /**
+     * Variable used for internal store
+     * @var Collection $data
+     */
+    protected $data;
     protected $model;
+
+    /**
+     * Method to return a clone of query with current collection
+     * @return QueryContract
+     */
+    private function newQuery($forceLoad = false) : QueryContract
+    {
+        $query = clone $this;
+        if (empty($query->data) || $forceLoad) {
+            $query->load();
+        }
+        return $query;
+    }
+
+    /**
+     * Method to return a clone of query with current collection
+     * @return void
+     */
+    protected function setData(Collection $data) : void
+    {
+        $items = [];
+        foreach ($data->toArray() as $row) {
+            if (is_array($row)) {
+                $items[] = (new $this->model)->fill($row);
+            } else if ($row instanceof $this->model) {
+                $items[] = $row;
+            } else if (empty($row)) {
+                $items[] = null;
+            }
+        }
+        $this->data = collect($items);
+    }
+
+    /**
+     * The method which to load / fetch data from repository source
+     * @return void
+     */
+    public function load() : void
+    {
+        $this->setData(collect([]));
+    }
+
+    /**
+     * Method to get a complete new query with loaded data from source
+     * @return void
+     */
+    public function fresh() : QueryContract
+    {
+        $query = $this->newQuery(true); // force load
+        return $query;
+    }
 
     /**
      * Add a basic where clause to the query
@@ -21,29 +76,9 @@ abstract class Query
      */
     public function where($key, $value) : QueryContract
     {
-        // Must implement get() first
-        $this->collection = $this->get()->where($key, $value);
-        return $this;
-    }
-
-    /**
-     * Add an "order by" clause to the query
-     * @throws QueryException
-     * @return QueryContract
-     */
-    public function orderBy() : QueryContract
-    {
-        throw new NotImplementedException();
-    }
-
-    /**
-     * Alias to set the "limit" value of the query
-     * @throws QueryException
-     * @return QueryContract
-     */
-    public function take() : QueryContract
-    {
-        throw new NotImplementedException();
+        $query = $this->newQuery();
+        $query->data = $query->get()->where($key, $value);
+        return $query;
     }
 
     /**
@@ -53,7 +88,8 @@ abstract class Query
      */
     public function find($id) : ?ModelContract
     {
-        return $this->where('id', $id)->first();
+        $query = $this->newQuery();
+        return $query->data->where('id', $id)->first();
     }
 
     /**
@@ -76,7 +112,8 @@ abstract class Query
      */
     public function get() : Collection
     {
-        throw new NotImplementedException();
+        $query = $this->newQuery();
+        return $query->data;
     }
 
     /**
@@ -86,7 +123,8 @@ abstract class Query
      */
     public function first() : ?ModelContract
     {
-        return $this->get()->first();
+        $query = $this->newQuery();
+        return $query->get()->first();
     }
 
     /**
