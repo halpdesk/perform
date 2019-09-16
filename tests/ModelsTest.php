@@ -277,4 +277,16 @@ class ModelsTest extends TestCase
 
         $this->assertEquals(new Employee($employeeData[$key]), $employee);
     }
+
+    /**
+     * @covers \Halpdesk\Perform\Abstracts\Model::all()
+     * @covers \Halpdesk\Perform\Abstracts\Query::get()
+     */
+    public function testChainWhere()
+    {
+        $foundEmployee = Employee::where("id", 2)->where("name", "Billy")->first();
+        $this->assertTrue($foundEmployee instanceof Employee);
+        $notFoundEmployee = Employee::where("id", 2)->where("name", "Charlie")->first();
+        $this->assertTrue(empty($notFoundEmployee));
+    }
 }
