@@ -69,7 +69,7 @@ abstract class Model {
     /**
      * Set the query class
      * @param string $class The class to set as Query Class
-     * @return ModelContract
+     * @return void
     */
     static public function setQueryClass(string $class) : ModelContract
     {
@@ -176,7 +176,7 @@ abstract class Model {
      * @param Array     $relations  Array of relation methods
      * @return void
      */
-    public function load(array $relations)
+    public function load(array $relations) : void
     {
         foreach ($relations as $relation) {
             if (empty($this->relations[$relation]) && method_exists($this, $relation)) {
@@ -302,10 +302,10 @@ abstract class Model {
     }
 
     /**
-     * Get the date formats array
-     * @return Array    The $date array
+     * Get the dates array
+     * @return array    The $date array
      */
-    public function getDates()
+    public function getDates() : array
     {
         return $this->dates;
     }
@@ -315,7 +315,7 @@ abstract class Model {
      * @param Array     $parameters     Parameters to update model fields with
      * @return ModelContract
      */
-    public function update(array $parameters)
+    public function update(array $parameters) : ModelContract
     {
         $query = new static::$query;
         $model = $query->update($parameters);
@@ -364,7 +364,7 @@ abstract class Model {
 
     /**
      * Convert the model instance to an array
-     * @return Array
+     * @return array
      */
     public function toArray() : array
     {
@@ -379,17 +379,16 @@ abstract class Model {
 
     /**
      * Get the loaded relations for ths model
-     * (for Fractal parseIncludes method)
-     * @return String
+     * @return array
      */
-    public function getIncludes() : Array
+    public function getLoadedRelations() : array
     {
         return array_keys($this->relations);
     }
 
     /**
      * Get the model casts
-     * @return Array
+     * @return array
      */
     public function getCasts() : array
     {
@@ -402,7 +401,7 @@ abstract class Model {
      * @throws InvalidTypeException
      * @return Mixed
      */
-    private function convert($field, $value)
+    private function convert(String $field, $value)
     {
         $validTypes = InvalidTypeException::getValidTypes();
         if (is_array($this->casts) && in_array($field, array_keys($this->casts)) && !is_null($value)) {

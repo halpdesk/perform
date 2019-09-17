@@ -51,7 +51,7 @@ interface Model {
     /**
      * Eager load relations on the model
      */
-    public function load(array $relations);
+    public function load(array $relations) : void;
 
     /**
      * Checks wheter a relation is loaded or not
@@ -79,9 +79,14 @@ interface Model {
     public function getAttribute(string $key);
 
     /**
+     * Get the dates array
+     */
+    public function getDates() : array;
+
+    /**
      * Update the model in the repository
      */
-    public function update(array $parameters);
+    public function update(array $parameters) : Model;
 
     /**
      * Save the model in the repository
@@ -107,7 +112,7 @@ interface Model {
     /**
      * Get the loaded relations for ths model
      */
-    public function getIncludes() : Array;
+    public function getLoadedRelations() : array;
 
     /**
      * Get the model casts
