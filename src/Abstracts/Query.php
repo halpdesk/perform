@@ -8,6 +8,7 @@ use Halpdesk\Perform\Exceptions\QueryException;
 use Halpdesk\Perform\Exceptions\NotImplementedException;
 use Halpdesk\Perform\Contracts\Query as QueryContract;
 use Halpdesk\Perform\Contracts\Model as ModelContract;
+use Closure;
 
 abstract class Query
 {
@@ -32,10 +33,10 @@ abstract class Query
     }
 
     /**
-     * Method to return a clone of query with current collection
+     * Method to set data
      * @return void
      */
-    protected function setData(Collection $data) : void
+    public function setData(Collection $data) : void
     {
         $items = [];
         foreach ($data->toArray() as $row) {
@@ -82,6 +83,28 @@ abstract class Query
     }
 
     /**
+     * Execute the query and return a collection
+     * @return Collection
+     */
+    public function get() : Collection
+    {
+        $query = $this->newQuery();
+        return $query->data;
+    }
+
+    /**
+     * Iterate through all items in the collection
+     * @return void
+     */
+    public function each(Closure $closure) : void
+    {
+        $query = $this->newQuery();
+        $query->data->each(function($item, $key) {
+            call_user_func($closure, $item, $key);
+        });
+    }
+
+    /**
      * Execute query for a single record by id
      * Return null if record with $id cannot be found
      * @return ModelContract|null
@@ -104,16 +127,6 @@ abstract class Query
             throw new ModelNotFoundException('not_found: '.$this->model.' ('.$id.')', $this->model, $id);
         }
         return $model;
-    }
-
-    /**
-     * Execute the query and return a collection
-     * @return Collection
-     */
-    public function get() : Collection
-    {
-        $query = $this->newQuery();
-        return $query->data;
     }
 
     /**

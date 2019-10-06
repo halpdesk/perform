@@ -13,6 +13,7 @@ use Halpdesk\Perform\Exceptions\QueryClassException;
 use Halpdesk\Perform\Contracts\Query as QueryContract;
 use Halpdesk\Perform\Contracts\Model as ModelContract;
 use Carbon\Carbon;
+use Closure;
 
 abstract class Model {
 
@@ -100,6 +101,27 @@ abstract class Model {
             }
         });
         return $collection;
+    }
+
+    /**
+     * Iterate through all items in the collection
+     * @return void
+     */
+    static public function newCollection(array $models = [])
+    {
+        $query = new static::$query;
+        $query->fresh()->setData(collect($models));
+        return $query->get();
+    }
+
+    /**
+     * Iterate through all items in the collection
+     * @return void
+     */
+    static public function each(Closure $closure)
+    {
+        $query = new static::$query;
+        $query->each($closure);
     }
 
     /**
