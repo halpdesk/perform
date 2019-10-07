@@ -85,6 +85,21 @@ abstract class Model {
     }
 
     /**
+     * Get a new collection (force fresh load)
+     * @param $data If set, instead return a collection with this data
+     * @return Collection
+     */
+    static public function newCollection(array $data = []) : Collection
+    {
+        $query = new static::$query;
+        $query->fresh();
+        if (!empty($data)) {
+            $query->setData(collect($data));
+        }
+        return $query->get();
+    }
+
+    /**
      * Get all of the models from the repository
      * @return Collection
      */
@@ -107,21 +122,20 @@ abstract class Model {
      * Iterate through all items in the collection
      * @return void
      */
-    static public function newCollection(array $models = [])
-    {
-        $query = new static::$query;
-        $query->fresh()->setData(collect($models));
-        return $query->get();
-    }
-
-    /**
-     * Iterate through all items in the collection
-     * @return void
-     */
-    static public function each(Closure $closure)
+    static public function each(Closure $closure) : void
     {
         $query = new static::$query;
         $query->each($closure);
+    }
+
+    /**
+     * Returns number of items in current collection
+     * @return int
+     */
+    static public function count() : int
+    {
+        $query = new static::$query;
+        return $query->count($closure);
     }
 
     /**
@@ -190,7 +204,7 @@ abstract class Model {
      */
     static public function with(array $relations) : QueryContract
     {
-        throw new NotImplementedException();
+        throw new NotImplementedException(static::class, __FUNCTION__);
     }
 
     /**
@@ -350,7 +364,7 @@ abstract class Model {
      */
     public function save() : bool
     {
-        throw new NotImplementedException();
+        throw new NotImplementedException(static::class, __FUNCTION__);
     }
 
     /**

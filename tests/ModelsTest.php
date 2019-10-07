@@ -9,12 +9,14 @@ use Halpdesk\Perform\Abstracts\Query as Query;
 use Halpdesk\Tests\Transformers\ProductsTransformer;
 use Halpdesk\Tests\Transformers\TicketsTransformer;
 use Halpdesk\Tests\Models\Employee;
+use Halpdesk\Tests\Queries\EmployeeQuery;
 use Halpdesk\Tests\Models\Company;
 use Halpdesk\Tests\Queries\OtherCompanyQuery;
 use PHPUnit\Framework\TestCase;
 use Carbon\Carbon;
 use Halpdesk\Perform\Exceptions\ModelNotFoundException;
 use Halpdesk\Perform\Exceptions\RelationException;
+use Halpdesk\Perform\Exceptions\NotImplementedException;
 
 /**
  * @author Daniel Leppänen
@@ -265,6 +267,53 @@ class ModelsTest extends TestCase
     }
 
     /**
+     * @covers \Halpdesk\Perform\Abstracts\Model::each()
+     * @covers \Halpdesk\Perform\Abstracts\Query::each()
+     * @covers \Halpdesk\Perform\Abstracts\Query::newQuery()
+     */
+    public function testEach()
+    {
+        // Assert that each object can convert to array and display the same data as the data source
+        $employeeData = json_file_to_array(__DIR__."/data/employees.json");
+        $expectedCount = count($employeeData);
+        $count = 0;
+        $employees = Employee::each(function($item, $key) use (&$count, $employeeData) {
+            $count++;
+            $this->assertEquals($item, Employee::make($employeeData[$key]));
+        });
+
+        $this->assertEquals($count, $expectedCount);
+    }
+
+    /**
+     * @covers \Halpdesk\Perform\Abstracts\Model::count()
+     * @covers \Halpdesk\Perform\Abstracts\Query::count()
+     * @covers \Halpdesk\Perform\Abstracts\Query::newQuery()
+     */
+    public function testCount()
+    {
+        // Assert that each object can convert to array and display the same data as the data source
+        $employeeData = json_file_to_array(__DIR__."/data/employees.json");
+        $expectedCount = count($employeeData);
+        $employees = Employee::newCollection($employeeData);
+        $count = $employees->count();
+
+        $this->assertNotEquals($count, 0);
+        $this->assertEquals($count, $expectedCount);
+
+        $subCount = $employees->where("name", "Billy")->count();
+        $expectedSubCount = 0;
+        foreach ($employeeData as $data) {
+            if ($data["name"] == "Billy") {
+                $expectedSubCount++;
+            }
+        }
+        $this->assertNotEquals($count, $subCount);
+        $this->assertNotEquals($subCount, 0);
+        $this->assertEquals($subCount, $expectedSubCount);
+    }
+
+    /**
      * @covers \Halpdesk\Perform\Abstracts\Model::all()
      * @covers \Halpdesk\Perform\Abstracts\Query::get()
      */
@@ -288,5 +337,26 @@ class ModelsTest extends TestCase
         $this->assertTrue($foundEmployee instanceof Employee);
         $notFoundEmployee = Employee::where("id", 2)->where("name", "Charlie")->first();
         $this->assertTrue(empty($notFoundEmployee));
+    }
+
+    /**
+     * @covers \Halpdesk\Perform\Abstracts\Model::findOrFail()
+     * @covers \Halpdesk\Perform\Abstracts\Model::delete()
+     * @covers \Halpdesk\Perform\Abstracts\Query::delete()
+     */
+    public function testThrowsNotImplementedException()
+    {
+        $foundEmployee = Employee::findOrFail(1);
+        $exceptionThrown = false;
+        try {
+            $foundEmployee->delete();
+        } catch (NotImplementedException $e) {
+            $this->assertEquals(get_class($e), NotImplementedException::class);
+            $this->assertEquals($e->getMessage(), "method_not_implemented");
+            $this->assertEquals($e->getClass(), EmployeeQuery::class);
+            $this->assertEquals($e->getMethod(), "delete");
+            $exceptionThrown = true;
+        }
+        $this->assertTrue($exceptionThrown);
     }
 }

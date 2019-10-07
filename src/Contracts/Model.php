@@ -3,6 +3,7 @@
 namespace Halpdesk\Perform\Contracts;
 
 use Illuminate\Support\Collection;
+use Closure;
 
 interface Model {
 
@@ -12,9 +13,24 @@ interface Model {
     static public function setQueryClass(string $class) : Model;
 
     /**
+     * Set the query class
+     */
+    static public function newCollection(array $data = []) : Collection;
+
+    /**
      * Get all of the models from the repository
      */
     static public function all() : Collection;
+
+    /**
+     * Iterate through all items in the collection
+     */
+    static public function each(Closure $closure) : void;
+
+    /**
+     * Returns number of items in current collection
+     */
+    static public function count() : int;
 
     /**
      * Get the model corresonding to the $id from the repository

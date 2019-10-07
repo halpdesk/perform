@@ -99,9 +99,19 @@ abstract class Query
     public function each(Closure $closure) : void
     {
         $query = $this->newQuery();
-        $query->data->each(function($item, $key) {
+        $query->data->each(function($item, $key) use ($closure) {
             call_user_func($closure, $item, $key);
         });
+    }
+
+    /**
+     * Returns number of items in current collection
+     * @return int
+     */
+    public function count() : int
+    {
+        $query = $this->newQuery();
+        return $query->data->count();
     }
 
     /**
@@ -161,7 +171,7 @@ abstract class Query
      */
     public function create(array $parameters) : ModelContract
     {
-        throw new NotImplementedException();
+        throw new NotImplementedException(static::class, __FUNCTION__);
     }
 
     /**
@@ -171,7 +181,7 @@ abstract class Query
      */
     public function update(array $parameters) : ModelContract
     {
-        throw new NotImplementedException();
+        throw new NotImplementedException(static::class, __FUNCTION__);
     }
 
     /**
@@ -181,7 +191,7 @@ abstract class Query
      */
     public function delete($id) : bool
     {
-        throw new NotImplementedException();
+        throw new NotImplementedException(static::class, __FUNCTION__);
     }
 
 }

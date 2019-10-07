@@ -3,6 +3,7 @@
 namespace Halpdesk\Perform\Contracts;
 
 use Illuminate\Support\Collection;
+use Closure;
 
 interface Query
 {
@@ -40,6 +41,16 @@ interface Query
      * Execute the query and return a collection
      */
     public function get() : Collection;
+
+    /**
+     * Iterate through all items in the collection
+     */
+    public function each(Closure $closure) : void;
+
+    /**
+     * Returns number of items in current collection
+     */
+    public function count() : int;
 
     /**
      * Execute the query and get the first result
