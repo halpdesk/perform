@@ -13,6 +13,9 @@ See tests for implementation. A short example is given below:
 
 ### Example
 
+An example with two classes, the _Person_ class and the _PersonQuery_ class.
+In this example, the person data is located in a person.json.
+
 #### Model class
 
 ```php
@@ -20,15 +23,28 @@ See tests for implementation. A short example is given below:
 use Halpdesk\Perform\Abstracts\Model;
 use Halpdesk\Perform\Contracts\Model as ModelContract;
 
-class MyModel extends Model implements ModelContract
+class Person extends Model implements ModelContract
 {
-    static public $query = MyQuery::class;
+    static public $query = PersonQuery::class;
+
     protected $fields = [
         'id',
-        'type',
-        'char',
-        'word',
+        'name',
+        'age',
+        'birthDate',
     ];
+
+    protected $casts = [
+        'name'      => 'string',
+        'age'       => 'integer',
+        'birthDate' => 'datetime',
+    ];
+
+    protected $dates = [
+        'birthDate',
+    ];
+
+    public $dateFormat = 'Y-m-d';
 }
 
 ```
@@ -39,13 +55,17 @@ class MyModel extends Model implements ModelContract
 use Halpdesk\Perform\Abstracts\Query;
 use Halpdesk\Perform\Contracts\Query as QueryContract;
 
-class MyQuery extends Query implements QueryContract
+class PersonQuery extends Query implements QueryContract
 {
-    protected $model = MyModel::class;
+    protected $model = Person::class;
 
     public function load() : void
     {
-        $data = json_file_to_array('./data.json');
+        /*
+         * Use any method to set the data: read from file, make HTTP call, query database, etc.
+         * In this example, we use a json file which contains all person data
+         */
+        $data = json_file_to_array('./person.json');
         $this->setData(collect($data));
     }
 
@@ -59,34 +79,58 @@ class MyQuery extends Query implements QueryContract
 
 ```
 
-#### Data source (data.json)
+#### Data source (person.json)
 
 ```json
 [
-    { "id": 1, "type": "N", "char": "a", "word": "alpha"   }
-    { "id": 2, "type": "N", "char": "b", "word": "bravo"   }
-    { "id": 3, "type": "T", "char": "c", "word": "charlie" }
-    { "id": 4, "type": "N", "char": "d", "word": "delta"   }
-    { "id": 5, "type": "N", "char": "e", "word": "echo"    }
-    { "id": 6, "type": "G", "char": "f", "word": "foxtrot" }
+    { "id": 1, "name": "Adam", "age": 37, "birthDate": "1982-11-02" },
+    { "id": 2, "name": "Billy", "age": 26, "birthDate": "1993-05-28" },
+    { "id": 3, "name": "Charlie", "age": 31, "birthDate": "1988-10-05" },
+    { "id": 4, "name": "David", "age": 33, "birthDate": "1986-03-14" }
+    { "id": 5, "name": "Billy", "age": 22, "birthDate": "1997-02-09" }
 ]
 ```
 
-#### Code example
+#### Method examples
+
+Below is a few examples of what you can do with the model class. The query class is mostly abstracted/hidden (just as the Builder class in Laravel Eloquent).
 
 ```php
 
-    // Constructs a model with data associated with id:1 from data.json
-    $alpha = MyModel::find(1);
+    // Constructs a Person with data associated with id:1 from person.json
+    $person = Person::find(1);
 
-    // Return a collection with MyModels where "type" from data.json is equal to "N"
-    $ns = MyModel::where("type", "N")->get();
+    // Return a collection with Persons named Billy from person.json
+    $persons = Person::where("name", "Billy")->get();
 
-    // Return a full collection with MyModels constructed from data.json
-    $all = MyModel::all();
+    // Return a full collection with Persons constructed from person.json
+    $all = Person::all();
 
-    // Throws a ModelNotFoundException (since id:7 does not exist in the data loaded)
-    $alpha = MyModel::findOrFail(7);
+    // Throws a ModelNotFoundException (since id:7 does not exist in the person loaded)
+    $person = Person::findOrFail(7);
+
+    // Convert the Person class to an array
+    $personArray = Person::findOrFail(2)->toArray();
+
+    // Create a new person -- this method calls the query class to attempt store the person in the data source (i.e. person.json)
+    // But the create method must be implemented in the query class; if it is not, an `NotImplementedException` will be thrown
+    $newPerson = Person::create([
+        "name" => "Ester",
+        "age" => 55,
+        "birthDate" => "1964-07-02"
+    ]);
+
+    // Same as above, but creates a temporary object which is not meant to be stored in the data source
+    $tempNewPerson = Person::make([
+        "name" => "Ester",
+        "age" => 55,
+        "birthDate" => "1964-07-02"
+    ]);
+
+    // Other methods that needs to be implemented to work, or otherwise throw an `NotImplementedException`
+    $person->save();
+    $person->update();
+    $person->delete();
 ```
 
 ## Tests
